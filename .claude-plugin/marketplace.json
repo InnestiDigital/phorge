@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "phorge",
-      "version": "1.4.2",
+      "version": "1.4.3",
       "description": "Pre-planning context (anchors, co-change, volatility, complexity, graph) and post-plan validation for Laravel and TypeScript / Vue / Nuxt codebases — zero LLM cost. Six skills + MCP server.",
       "source": "./",
       "homepage": "https://github.com/InnestiDigital/phorge",
