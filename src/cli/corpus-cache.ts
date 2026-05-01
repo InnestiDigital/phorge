@@ -45,11 +45,18 @@ export type RepoSignals = {
 const LEXICAL_FILES_TTL_MS = 1000 * 60 * 60 * 24 // 24h
 
 export function listScopedFiles(repoPath: string, scope: FileScopeProvider): string[] {
+  // Prefer git's view of "what's source" — respects nested .gitignore + per-repo
+  // customs (cdk.out, .terraform, .serverless, etc) without us hardcoding them.
+  const gitFiles = tryGitListFiles(repoPath)
+  if (gitFiles) {
+    const matched = gitFiles.filter(p => scope.matches(p))
+    if (scope.scanRoots.length === 0) return matched.sort()
+    return matched.filter(p => scope.scanRoots.some(r => p === r || p.startsWith(r + '/'))).sort()
+  }
+
+  // Fallback: recursive walk + manual ignoreDirs (non-git directories).
   const out: string[] = []
   const ignore = new Set(scope.ignoreDirs)
-  // Empty scanRoots = walk repoRoot directly (TS profile uses this; codebase
-  // conventions vary too widely for a whitelist). Non-empty = tight whitelist
-  // (Laravel uses this).
   if (scope.scanRoots.length === 0) {
     walkScope(repoPath, repoPath, scope, ignore, out)
   } else {
@@ -61,6 +68,19 @@ export function listScopedFiles(repoPath: string, scope: FileScopeProvider): str
   }
   out.sort()
   return out
+}
+
+function tryGitListFiles(repoPath: string): string[] | null {
+  try {
+    const out = execFileSync(
+      'git',
+      ['-C', repoPath, 'ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+      { encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] },
+    )
+    return out.split('\0').filter(Boolean)
+  } catch {
+    return null
+  }
 }
 
 function walkScope(

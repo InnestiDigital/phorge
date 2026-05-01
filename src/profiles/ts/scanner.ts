@@ -9,6 +9,7 @@
 // the repo root and skip all package-internal source.
 
 import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { join, relative, dirname, basename, extname, resolve, isAbsolute } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { Project, SyntaxKind, ScriptKind, type SourceFile, type Node } from 'ts-morph'
@@ -637,15 +638,36 @@ function walk(dir: string, ignoreDirs: ReadonlySet<string>, out: string[]): void
   }
 }
 
+function tryGitListAbs(repoRoot: string): string[] | null {
+  try {
+    const out = execFileSync(
+      'git',
+      ['-C', repoRoot, 'ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+      { encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] },
+    )
+    return out.split('\0').filter(Boolean)
+      .filter(p => tsFileScope.matches(p))
+      .map(p => join(repoRoot, p))
+  } catch {
+    return null
+  }
+}
+
 // When scanRoots is empty, walk each package root recursively (TS default —
 // codebases use admin/, shared/, themes/, modules/, frontend/, etc). When
 // scanRoots is non-empty, walk only the listed subdirs (Laravel-style tight
-// convention).
+// convention). Prefer git ls-files when available — respects .gitignore and
+// avoids cdk.out / .terraform / build-artifact noise without our hardcoded list.
 function collectFiles(packageRoots: readonly string[]): string[] {
   const ignore = new Set<string>(tsFileScope.ignoreDirs)
   const out: string[] = []
   const scanRoots = tsFileScope.scanRoots
   for (const pkgRoot of packageRoots) {
+    const gitFiles = tryGitListAbs(pkgRoot)
+    if (gitFiles) {
+      out.push(...gitFiles)
+      continue
+    }
     if (scanRoots.length === 0) {
       walk(pkgRoot, ignore, out)
       continue
