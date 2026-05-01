@@ -20,6 +20,19 @@ export const PhorgeProjectConfigSchema = z.object({
     from: z.enum(['low', 'medium', 'high']),
     to: z.enum(['low', 'medium', 'high']),
   })).optional(),
+  // Override volatility risk weights + normalization knobs. Each component
+  // weight is in [0,1]; sum should be ~1 for interpretable risk scores.
+  volatility: z.object({
+    weights: z.object({
+      churn: z.number().min(0).max(1),
+      bugDensity: z.number().min(0).max(1),
+      ownershipFragmentation: z.number().min(0).max(1),
+      recency: z.number().min(0).max(1),
+    }).optional(),
+    minCommitsForRisk: z.number().int().positive().optional(),
+    bugDensityPriorPseudoCommits: z.number().int().nonnegative().optional(),
+    normalizationMethod: z.enum(['raw', 'percentile']).optional(),
+  }).optional(),
 }).strict()
 
 export type PhorgeProjectConfig = z.infer<typeof PhorgeProjectConfigSchema>

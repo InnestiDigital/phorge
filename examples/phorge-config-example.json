@@ -20,5 +20,16 @@
   ],
   "confidenceBoosts": [
     { "source": "lexical", "from": "low", "to": "medium" }
-  ]
+  ],
+  "volatility": {
+    "weights": {
+      "churn": 0.45,
+      "bugDensity": 0.30,
+      "ownershipFragmentation": 0.10,
+      "recency": 0.15
+    },
+    "minCommitsForRisk": 5,
+    "bugDensityPriorPseudoCommits": 5,
+    "normalizationMethod": "percentile"
+  }
 }

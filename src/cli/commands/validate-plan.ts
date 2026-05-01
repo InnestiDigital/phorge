@@ -31,6 +31,7 @@ export async function runValidatePlan(cli: ParsedCli): Promise<void> {
     since: cli.since,
     fileScope: profile.fileScope,
     profileId: profile.id,
+      volatility: profile.projectConfig?.volatility,
   })
 
   // Try to load the graph. Absent graph disables structural-gap checker

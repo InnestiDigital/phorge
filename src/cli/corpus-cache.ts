@@ -30,7 +30,7 @@ import {
   type VolatilityMapManifest,
   type RevertChainsManifest,
 } from '../commit-mining'
-import type { FileScopeProvider } from '../profiles/contracts'
+import type { FileScopeProvider, PhorgeProjectConfig } from '../profiles/contracts'
 import { NullLanguageProfile } from '../profiles/null-objects'
 
 export type RepoSignals = {
@@ -167,6 +167,7 @@ export type LoadOpts = {
   readHeadSha?: HeadShaReader
   fileScope?: FileScopeProvider
   profileId?: string
+  volatility?: PhorgeProjectConfig['volatility']
 }
 
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24 // 24h fallback (no-git case)
@@ -261,7 +262,13 @@ export async function loadRepoSignals(opts: LoadOpts): Promise<RepoSignals> {
   }
 
   const coChange = buildCoChangeMatrix({ corpus })
-  const volatility = buildVolatilityMap({ corpus })
+  const volatility = buildVolatilityMap({
+    corpus,
+    weights: opts.volatility?.weights,
+    minCommitsForRisk: opts.volatility?.minCommitsForRisk,
+    bugDensityPriorPseudoCommits: opts.volatility?.bugDensityPriorPseudoCommits,
+    normalizationMethod: opts.volatility?.normalizationMethod,
+  })
   const reverts = buildRevertChains({ corpus })
   const scope = opts.fileScope ?? NullLanguageProfile.fileScope
   const profileId = opts.profileId ?? NullLanguageProfile.id

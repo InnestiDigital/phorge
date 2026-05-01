@@ -287,7 +287,13 @@ Tune phorge per-repo without forking the package. Drop a `.phorge/config.json` (
   "alwaysExclude": ["app/Legacy/**"],
   "confidenceBoosts": [
     { "source": "lexical", "from": "low", "to": "medium" }
-  ]
+  ],
+  "volatility": {
+    "weights": { "churn": 0.45, "bugDensity": 0.30, "ownershipFragmentation": 0.10, "recency": 0.15 },
+    "minCommitsForRisk": 3,
+    "bugDensityPriorPseudoCommits": 5,
+    "normalizationMethod": "percentile"
+  }
 }
 ```
 
@@ -301,8 +307,40 @@ Tune phorge per-repo without forking the package. Drop a `.phorge/config.json` (
 | `alwaysInclude` | Hard-include paths — surfaced as `project_config`/`high` regardless of score. |
 | `alwaysExclude` | Hard-exclude paths — dropped from anchor results. Glob (`**`, `*`, `?`). |
 | `confidenceBoosts` | Lift anchor confidence per `(source, from)` rule. |
+| `volatility.weights` | Override risk component weights (`churn`/`bugDensity`/`ownershipFragmentation`/`recency`). Each in [0,1]; sum should be ~1. |
+| `volatility.minCommitsForRisk` | Threshold below which risk is dampened proportionally. Default 5. |
+| `volatility.bugDensityPriorPseudoCommits` | Laplace-smoothing prior for bug-fix density. Default 5. Higher = less small-N inflation. |
+| `volatility.normalizationMethod` | `percentile` (default — top score = 95th percentile of qualifying files) or `raw`. |
 
 Validation errors print a stderr warning and phorge proceeds with the built-in profile — config is optional and additive. See `examples/phorge-config-example.json` for the full reference.
+
+### How to tune for your repo
+
+Pick the smallest config that fixes what's wrong. Start with `alwaysExclude` for noise and `synonyms` for vocabulary mismatch — those two solve ~80% of poor anchor results.
+
+| Symptom | Tuning |
+|---------|--------|
+| Anchors return junk files (build artifacts, fixtures, sample data) | `alwaysExclude: ["**/dist/**", "public/granny-smoke.html", "tests/fixtures/**"]` |
+| Critical files never surface ("we always edit `app/Services/RefundService.php` for refund tasks") | `alwaysInclude: ["app/Services/RefundService.php"]` |
+| Domain-specific words don't match commit history vocabulary (e.g. team says "engagement", commits say "points") | `synonyms: [["engagement", "points", "redemption"], ["member-app", "mobile", "capacitor"]]` |
+| Path tokens leak into anchor scores ("controllers" appears in every anchor and dilutes signal) | `pathStopwords: ["controllers", "http", "internal"]` |
+| Volatility ranking dominated by recent merges of stable code | `volatility.weights: { churn: 0.5, recency: 0.05, bugDensity: 0.30, ownershipFragmentation: 0.15 }` |
+| Top files are tiny one-commit files with 100% bugfix density | `volatility.minCommitsForRisk: 8` (raise floor) |
+| Need shorter time window after big refactor | re-build corpus with `--since 2026-04-30` instead of tuning weights |
+| Refactor area uses non-standard dirs phorge doesn't surface | `pathRoles: [{ "glob": "packages/strand-agent/src/runtime/**", "tags": ["composition"] }]` |
+| Lexical anchors stuck at low confidence | `confidenceBoosts: [{ "source": "lexical", "from": "low", "to": "medium" }]` (use sparingly — risks over-promoting weak matches) |
+
+### Asking Claude to write the config for you
+
+Phorge tools can diagnose what to tune. Drop this into a Claude Code session in your repo:
+
+> Run `phorge brief --prompt "<your typical task>"` against this repo, then look at the top-10 anchors. For each anchor that's noise (build artifact, fixture, irrelevant file), add it to `alwaysExclude` glob. For each critical file that didn't surface but should have, add to `alwaysInclude`. For domain words the team uses that aren't in commit messages, add a synonym group. Then write `.phorge/config.json` with the result.
+
+Or for volatility tuning:
+
+> Run `phorge volatility` against this repo. If the top files are tiny / single-commit / 100% bugfix density, the small-N dampener is too lenient — add `volatility.minCommitsForRisk: 8` and `volatility.bugDensityPriorPseudoCommits: 8` to `.phorge/config.json`. If recent merges dominate, lower `volatility.weights.recency` to 0.05 and bump `churn` to 0.5. Re-run and confirm fragile-but-stable code surfaces above stable-but-recently-touched code.
+
+Phorge's tools are read-only — Claude can iterate the config without touching source code.
 
 ## Limits & honest expectations
 

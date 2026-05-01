@@ -15,6 +15,7 @@ export async function runRevertRisk(cli: ParsedCli): Promise<void> {
     since: cli.since,
     fileScope: profile.fileScope,
     profileId: profile.id,
+      volatility: profile.projectConfig?.volatility,
   })
 
   const stats = signals.reverts.pathStats

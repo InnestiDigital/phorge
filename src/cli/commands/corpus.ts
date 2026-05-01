@@ -19,6 +19,7 @@ export async function runCorpus(cli: ParsedCli): Promise<void> {
       forceRebuild: true,
       fileScope: profile.fileScope,
       profileId: profile.id,
+      volatility: profile.projectConfig?.volatility,
     })
     printText(`Corpus rebuilt and cached under ${cli.repoPath}/.phorge/`)
     return
@@ -30,6 +31,7 @@ export async function runCorpus(cli: ParsedCli): Promise<void> {
       since: cli.since,
       fileScope: profile.fileScope,
       profileId: profile.id,
+      volatility: profile.projectConfig?.volatility,
     })
     if (cli.json) {
       printJson(signals.corpus.stats)
