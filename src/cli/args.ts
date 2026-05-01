@@ -4,6 +4,7 @@
 //   phorge <command> [positional...] [--flag value] [--bool]
 
 import { parseArgs as nodeParseArgs } from 'node:util'
+import { resolve } from 'node:path'
 
 export type ParsedCli = {
   command: string
@@ -54,7 +55,7 @@ export function parseCli(argv: string[]): ParsedCli {
     positionals,
     flags: values as Record<string, string | boolean | string[]>,
     json: Boolean(values.json),
-    repoPath: typeof values.repo === 'string' ? values.repo : process.cwd(),
+    repoPath: resolve(typeof values.repo === 'string' ? values.repo : process.cwd()),
     since: typeof values.since === 'string' ? values.since : undefined,
   }
 }

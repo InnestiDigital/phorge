@@ -782,7 +782,7 @@ export const tsGraphScanner: GraphScanner = {
       nodes: [...ctx.nodes.values()],
       edges: ctx.edges,
       stats: {
-        filesScanned: 0,
+        filesScanned: tsFilesScanned + vueFilesScanned,
         parseErrors,
         nodes: ctx.nodes.size,
         edges: ctx.edges.length,

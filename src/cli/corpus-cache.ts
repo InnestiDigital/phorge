@@ -15,7 +15,7 @@ import {
   readdirSync,
   unlinkSync,
 } from 'node:fs'
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import {
@@ -76,7 +76,7 @@ function walkScope(
     if (e.isDirectory()) {
       walkScope(full, repoRoot, scope, ignore, acc)
     } else if (e.isFile()) {
-      const rel = full.slice(repoRoot.length + 1)
+      const rel = relative(repoRoot, full)
       if (scope.matches(rel)) acc.push(rel)
     }
   }
