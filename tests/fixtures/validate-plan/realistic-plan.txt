@@ -1,0 +1,14 @@
+{
+  "summary": "Refactor OrderController and OrderService to add a new discount calculation path. The OrderController.store action will call into OrderService for the new logic.",
+  "steps": [
+    {
+      "description": "Update app/Http/Controllers/OrderController.php to pass discount data to OrderService.",
+      "files": ["app/Http/Controllers/OrderController.php"]
+    },
+    {
+      "description": "Add discount branch to OrderService.create() in app/Services/OrderService.php.",
+      "files": ["app/Services/OrderService.php"]
+    }
+  ],
+  "riskFlags": []
+}

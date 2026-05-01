@@ -1,0 +1,19 @@
+---
+id: rule-services-need-tests
+title: Service classes must have feature tests
+state: approved
+source: human
+appliesTo:
+  - validator
+scope:
+  globs:
+    - app/Services/**
+confidence: high
+version: 1
+rationale: Service classes carry business logic and regress easily without tests.
+guidance: Add or update a Feature test under tests/Feature/ for any change to app/Services/**.
+tags:
+  - testing
+---
+
+Body content for the rule.

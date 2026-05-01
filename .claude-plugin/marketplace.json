@@ -1,0 +1,33 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "phorge",
+  "description": "Zero-LLM static intelligence layer for Laravel and TypeScript coding agents.",
+  "owner": {
+    "name": "Innesti Digital",
+    "email": "info@innesti.digital"
+  },
+  "plugins": [
+    {
+      "name": "phorge",
+      "version": "1.1.0",
+      "description": "Pre-planning context (anchors, co-change, volatility, complexity, graph) and post-plan validation for Laravel and TypeScript / Vue / Nuxt codebases — zero LLM cost. Six skills + MCP server.",
+      "source": "./",
+      "homepage": "https://github.com/InnestiDigital/phorge",
+      "repository": "https://github.com/InnestiDigital/phorge",
+      "license": "MIT",
+      "category": "agent-tools",
+      "keywords": [
+        "laravel",
+        "php",
+        "typescript",
+        "vue",
+        "nuxt",
+        "static-analysis",
+        "git-mining",
+        "code-graph",
+        "agent-tools",
+        "mcp"
+      ]
+    }
+  ]
+}

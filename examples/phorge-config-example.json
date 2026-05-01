@@ -1,0 +1,24 @@
+{
+  "profileOverride": "laravel",
+  "synonyms": [
+    ["refund", "reimburse", "credit"],
+    ["member", "user", "customer"]
+  ],
+  "pathStopwords": ["http", "controllers"],
+  "pathRoles": [
+    { "glob": "app/Http/Controllers/Member/**", "tags": ["member-facing", "controller"] },
+    { "glob": "app/Jobs/**", "tags": ["async"] }
+  ],
+  "edgeWeights": [
+    { "edgeKind": "dispatches_job", "whenPromptContains": ["async", "queue"], "multiplier": 1.5 }
+  ],
+  "alwaysInclude": [
+    "app/Services/RefundService.php"
+  ],
+  "alwaysExclude": [
+    "app/Legacy/**"
+  ],
+  "confidenceBoosts": [
+    { "source": "lexical", "from": "low", "to": "medium" }
+  ]
+}

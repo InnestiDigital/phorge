@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -f composer.json && grep -q laravel/framework composer.json && test ! -f .phorge/corpus-current.json && phorge corpus build --repo \"$CLAUDE_PROJECT_DIR\" >/dev/null 2>&1 || true",
+            "async": true,
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "test -f composer.json && grep -q laravel/framework composer.json && test ! -f .phorge/graph.json && phorge graph build --repo \"$CLAUDE_PROJECT_DIR\" >/dev/null 2>&1 || true",
+            "async": true,
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

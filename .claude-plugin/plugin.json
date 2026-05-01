@@ -1,0 +1,23 @@
+{
+  "name": "phorge",
+  "description": "Zero-LLM static intelligence layer for Laravel and TypeScript coding agents. Provides deterministic pre-planning context (anchors, co-change, volatility, complexity, graph), and post-plan validation — without burning tokens.",
+  "version": "1.1.0",
+  "author": {
+    "name": "Phorge contributors"
+  },
+  "homepage": "https://github.com/InnestiDigital/phorge",
+  "repository": "https://github.com/InnestiDigital/phorge",
+  "license": "MIT",
+  "keywords": [
+    "laravel",
+    "php",
+    "typescript",
+    "vue",
+    "nuxt",
+    "static-analysis",
+    "git-mining",
+    "code-graph",
+    "agent-tools",
+    "mcp"
+  ]
+}

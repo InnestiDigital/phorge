@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "phorge": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["--package=@innestidigital/phorge", "--", "phorge", "mcp", "serve"]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+---
+id: rule-mail-templates
+title: Mail templates require localization review
+state: approved
+source: human
+appliesTo:
+  - validator
+scope:
+  globs:
+    - app/Mail/**/*.php
+confidence: medium
+version: 1
+rationale: Mail content goes to customers and must be localized.
+guidance: Ensure localized strings exist for all customer-facing email templates.
+---
+
+Body content.
