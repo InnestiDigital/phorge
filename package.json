@@ -1,6 +1,6 @@
 {
   "name": "@innestidigital/phorge",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Zero-LLM static intelligence layer for Laravel coding agents. Provides commit-mining, code graphs, anchor resolution, and plan validation as deterministic signals before agent planning.",
   "license": "MIT",
   "type": "module",

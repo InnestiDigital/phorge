@@ -1,7 +1,7 @@
 {
   "name": "phorge",
   "description": "Zero-LLM static intelligence layer for Laravel and TypeScript coding agents. Provides deterministic pre-planning context (anchors, co-change, volatility, complexity, graph), and post-plan validation — without burning tokens.",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "author": {
     "name": "Phorge contributors"
   },
