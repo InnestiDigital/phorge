@@ -637,25 +637,28 @@ function walk(dir: string, ignoreDirs: ReadonlySet<string>, out: string[]): void
   }
 }
 
-// Walk scanRoots under each package root. Files at the repo root that don't
-// fall under any scanRoot are picked up by the repoRoot package entry.
+// When scanRoots is empty, walk each package root recursively (TS default —
+// codebases use admin/, shared/, themes/, modules/, frontend/, etc). When
+// scanRoots is non-empty, walk only the listed subdirs (Laravel-style tight
+// convention).
 function collectFiles(packageRoots: readonly string[]): string[] {
   const ignore = new Set<string>(tsFileScope.ignoreDirs)
   const out: string[] = []
+  const scanRoots = tsFileScope.scanRoots
   for (const pkgRoot of packageRoots) {
+    if (scanRoots.length === 0) {
+      walk(pkgRoot, ignore, out)
+      continue
+    }
     let walked = false
-    for (const root of tsFileScope.scanRoots) {
+    for (const root of scanRoots) {
       const abs = join(pkgRoot, root)
       if (!existsSync(abs)) continue
       walked = true
       walk(abs, ignore, out)
     }
-    // Only fall back to walking the package root itself when no scanRoots
-    // matched AND this is not the repo root (which would risk traversing
-    // every workspace package twice).
     if (!walked && packageRoots.length === 1) walk(pkgRoot, ignore, out)
   }
-  // Dedupe — multiple package roots may share files via symlinks/overlap.
   return [...new Set(out)]
 }
 

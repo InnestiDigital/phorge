@@ -47,10 +47,17 @@ const LEXICAL_FILES_TTL_MS = 1000 * 60 * 60 * 24 // 24h
 export function listScopedFiles(repoPath: string, scope: FileScopeProvider): string[] {
   const out: string[] = []
   const ignore = new Set(scope.ignoreDirs)
-  for (const root of scope.scanRoots) {
-    const abs = join(repoPath, root)
-    if (!existsSync(abs)) continue
-    walkScope(abs, repoPath, scope, ignore, out)
+  // Empty scanRoots = walk repoRoot directly (TS profile uses this; codebase
+  // conventions vary too widely for a whitelist). Non-empty = tight whitelist
+  // (Laravel uses this).
+  if (scope.scanRoots.length === 0) {
+    walkScope(repoPath, repoPath, scope, ignore, out)
+  } else {
+    for (const root of scope.scanRoots) {
+      const abs = join(repoPath, root)
+      if (!existsSync(abs)) continue
+      walkScope(abs, repoPath, scope, ignore, out)
+    }
   }
   out.sort()
   return out

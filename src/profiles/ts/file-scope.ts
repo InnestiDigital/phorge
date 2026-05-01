@@ -1,12 +1,15 @@
 import type { FileScopeProvider } from '../contracts'
 
 const EXTENSIONS = ['.ts', '.tsx', '.vue', '.mjs', '.cjs', '.js', '.jsx'] as const
-const SCAN_ROOTS = [
-  'app', 'src', 'pages', 'composables', 'components', 'stores',
-  'server', 'layouts', 'middleware', 'plugins', 'lib', 'packages',
-] as const
+// Empty scanRoots = walk the repo (or each workspace package) recursively,
+// pruning ignoreDirs. TS codebases vary too widely for an explicit whitelist
+// (admin/, shared/, themes/, modules/, frontend/, web/, etc all show up).
+const SCAN_ROOTS: readonly string[] = []
 const IGNORE_DIRS = [
-  'node_modules', 'dist', '.nuxt', '.output', 'build', 'coverage', '.next', '.svelte-kit',
+  'node_modules', 'dist', 'build', 'coverage', 'out',
+  '.nuxt', '.output', '.next', '.svelte-kit', '.turbo', '.vercel',
+  '.cache', '.parcel-cache', '.serverless',
+  'tmp', 'vendor', 'target',
 ] as const
 
 export const tsFileScope: FileScopeProvider = {
