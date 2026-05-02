@@ -85,7 +85,9 @@ jobs:
         id: bump
         if: github.event_name == 'workflow_dispatch'
         run: |
-          NEW_VERSION=$(npm version ${{ inputs.release_type }} -m "chore(release): v%s")
+          # tail -n 1 strips any `> version` lifecycle script output that npm
+          # writes before the actual `vX.Y.Z` line.
+          NEW_VERSION=$(npm version ${{ inputs.release_type }} -m "chore(release): v%s" | tail -n 1)
           echo "version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${NEW_VERSION}"     >> "$GITHUB_OUTPUT"
 
